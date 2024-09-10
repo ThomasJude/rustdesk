@@ -638,15 +638,17 @@ jobs:
 
       - name: Debug secrets
         run: |
-          echo "P12 Base64 is set: ${{ secrets.MACOS_P12_BASE64 != '' }}"
+          echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 != '' }}"
+          echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 == '' }}"
+          echo "P12 Base64 is set: ${{ secrets.MACOS_P12_BASE64 == '' }}"
 
       - name: Import the codesign cert
         #if: env.MACOS_P12_BASE64 != null
         if: ${{ env.MACOS_P12_BASE64 }} != null
         uses: apple-actions/import-codesign-certs@v1
         with:
-          p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
-          p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
+          p12-file-base64: ${{ env.MACOS_P12_BASE64 }}
+          p12-password: ${{ env.MACOS_P12_PASSWORD }}
           keychain: rustdesk
 
       - name: Check sign and import sign key
@@ -664,7 +666,7 @@ jobs:
           # https://gregoryszorc.com/docs/apple-codesign/stable/apple_codesign_rcodesign.html#notarizing-and-stapling
           fileName: rustdesk.json
           fileDir: ${{ github.workspace }}
-          encodedString: ${{ secrets.MACOS_NOTARIZE_JSON }}
+          encodedString: ${{ env.MACOS_NOTARIZE_JSON }}
 
       - name: Install rcodesign tool
         if: ${{ env.MACOS_P12_BASE64 }} != null
