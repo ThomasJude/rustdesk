@@ -677,6 +677,10 @@ jobs:
           fileName: rustdesk.json
           fileDir: ${{ github.workspace }}
           encodedString: "${{ secrets.MACOS_NOTARIZE_JSON }}"
+          
+      - name: Check notarize key file content
+        run: |
+          cat ${{ github.workspace }}/rustdesk.json
 
       - name: Install rcodesign tool
         if: ${{ env.MACOS_P12_BASE64 }} != null
