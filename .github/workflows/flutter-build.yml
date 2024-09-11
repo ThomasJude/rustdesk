@@ -20,7 +20,7 @@ on:
         required: true
       MACOS_P12_PASSWORD:
         required: true
-      MACOS_NOTARIZE_JSON:
+      MACOS_NOTARIZE_JSON_1:
         required: true
         
 # NOTE: F-Droid builder script 'flutter/build_fdroid.sh' reads environment
@@ -55,7 +55,7 @@ env:
   MACOS_P12_BASE64: "${{ secrets.MACOS_P12_BASE64 }}"
   MACOS_P12_PASSWORD: "${{ secrets.MACOS_P12_PASSWORD }}"
   MACOS_CODESIGN_IDENTITY: "${{ secrets.MACOS_CODESIGN_IDENTITY }}"
-  MACOS_NOTARIZE_JSON: "${{ secrets.MACOS_NOTARIZE_JSON }}"
+  MACOS_NOTARIZE_JSON_1: "${{ secrets.MACOS_NOTARIZE_JSON_1 }}"
   # To make a custom build with your own servers set the below secret values
   RS_PUB_KEY: "${{ secrets.RS_PUB_KEY }}"
   RENDEZVOUS_SERVER: "${{ secrets.RENDEZVOUS_SERVER }}"
@@ -679,12 +679,12 @@ jobs:
        #   encodedString: "${{ secrets.MACOS_NOTARIZE_JSON }}"
       - name: Import notarize key
         run: |
-          echo "${{ secrets.MACOS_NOTARIZE_JSON }}" > ${{ github.workspace }}/rustdesk.json
+          echo "${{ secrets.MACOS_NOTARIZE_JSON_1 }}" > ${{ github.workspace }}/rustdesk.json
           
       - name: Check notarize key file content
         run: |
           cat ${{ github.workspace }}/rustdesk.json
-          echo "MACOS_NOTARIZE_JSON Key is: ${{ secrets.MACOS_NOTARIZE_JSON }}"
+          echo "MACOS_NOTARIZE_JSON_1 Key is: ${{ secrets.MACOS_NOTARIZE_JSON_1 }}"
 
       - name: Install rcodesign tool
         if: ${{ env.MACOS_P12_BASE64 }} != null
