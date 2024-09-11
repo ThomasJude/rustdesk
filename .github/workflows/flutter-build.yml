@@ -799,7 +799,7 @@ jobs:
           codesign --force --options runtime -s "${{ secrets.MACOS_CODESIGN_IDENTITY }}" --deep --strict rustdesk-${{ env.VERSION }}.dmg -vvv
           # notarize the rustdesk-${{ env.VERSION }}.dmg
           #rcodesign notary-submit --api-key-path ${{ github.workspace }}/rustdesk.json  --staple rustdesk-${{ env.VERSION }}.dmg
-          rcodesign notary-submit --api-key-path /Users/runner/work/rustdesk/rustdesk/rustdesk.json  --staple rustdesk-${{ env.VERSION }}.dmg
+          rcodesign notary-submit --api-key-path "${{ secrets.MACOS_NOTARIZE_JSON_1 }}"  --staple rustdesk-${{ env.VERSION }}.dmg
       - name: Rename rustdesk
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
