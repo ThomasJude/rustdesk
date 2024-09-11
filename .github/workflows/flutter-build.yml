@@ -653,14 +653,14 @@ jobs:
 
       - name: Debug secrets
         run: |
-          echo "P12 Base64 is set: env.MACOS_P12_BASE64 != '' "
-          echo "P12 Base64 is set: env.MACOS_P12_BASE64 == '' "
+          echo "P12 Base64 is set: ${{ secrets.MACOS_P12_BASE64 }} "
+          echo "MACOS_P12_PASSWORD is set: $ {{ secrets.MACOS_P12_PASSWORD }} "
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@v1
         with:
-          p12-file-base64: env.MACOS_P12_BASE64
-          p12-password: env.MACOS_P12_PASSWORD
+          p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
+          p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
           keychain: rustdesk
 
       - name: Check sign and import sign key
@@ -670,7 +670,7 @@ jobs:
           security find-identity -v
 
       - name: Import notarize key
-        if: ${{ env.MACOS_P12_BASE64 }} != null
+        if: env.MACOS_P12_BASE64 != null
         uses: timheuer/base64-to-file@v1.2
         with:
           # https://gregoryszorc.com/docs/apple-codesign/stable/apple_codesign_rcodesign.html#notarizing-and-stapling
