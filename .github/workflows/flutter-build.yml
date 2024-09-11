@@ -9,7 +9,20 @@ on:
       upload-tag:
         type: string
         default: "nightly"
-
+    secrets:
+      RS_PUB_KEY:
+        required: true
+      RENDEZVOUS_SERVER:
+        required: true
+      MACOS_CODESIGN_IDENTITY:
+        required: true
+      MACOS_P12_BASE64:
+        required: true
+      MACOS_P12_PASSWORD:
+        required: true
+      MACOS_NOTARIZE_JSON:
+        required: true
+        
 # NOTE: F-Droid builder script 'flutter/build_fdroid.sh' reads environment
 # variables from this workflow!
 #
@@ -37,6 +50,8 @@ env:
   NDK_VERSION: "r27"
   #signing keys env variable checks
   ANDROID_SIGNING_KEY: "${{ secrets.ANDROID_SIGNING_KEY }}"
+
+  ## MacOS signing variables
   MACOS_P12_BASE64: "${{ secrets.MACOS_P12_BASE64 }}"
   MACOS_P12_PASSWORD: "${{ secrets.MACOS_P12_PASSWORD }}"
   MACOS_CODESIGN_IDENTITY: ${{ secrets.MACOS_CODESIGN_IDENTITY }}
@@ -637,24 +652,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug secrets
-        env:
-          MACOS_P12_BASE64: ${{ secrets.MACOS_P12_BASE64 }}
-          MACOS_P12_PASSWORD: ${{ secrets.MACOS_P12_PASSWORD }}
         run: |
-          echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 != '' }}"
-          echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 == '' }}"
-          echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 == '' }}"
-
+          echo "P12 Base64 is set: env.MACOS_P12_BASE64 != '' "
+          echo "P12 Base64 is set: env.MACOS_P12_BASE64 == '' "
       - name: Import the codesign cert
-        if: ${{ env.MACOS_P12_BASE64 }} != null
+        if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@v1
         with:
-          p12-file-base64: ${{ env.MACOS_P12_BASE64 }}
-          p12-password: ${{ env.MACOS_P12_PASSWORD }}
+          p12-file-base64: env.MACOS_P12_BASE64
+          p12-password: env.MACOS_P12_PASSWORD
           keychain: rustdesk
 
       - name: Check sign and import sign key
-        if: ${{ env.MACOS_P12_BASE64 }} != null
+        if: env.MACOS_P12_BASE64 != null
         run: |
           security default-keychain -s rustdesk.keychain
           security find-identity -v
@@ -666,7 +676,7 @@ jobs:
           # https://gregoryszorc.com/docs/apple-codesign/stable/apple_codesign_rcodesign.html#notarizing-and-stapling
           fileName: rustdesk.json
           fileDir: ${{ github.workspace }}
-          encodedString: ${{ env.MACOS_NOTARIZE_JSON }}
+          encodedString: ${{ secrets.MACOS_NOTARIZE_JSON }}
 
       - name: Install rcodesign tool
         if: ${{ env.MACOS_P12_BASE64 }} != null
@@ -765,7 +775,7 @@ jobs:
           path: rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg # can not upload the directory directly or tar.gz, which destroy the link structure, causing the codesign failed
 
       - name: Codesign app and create signed dmg
-        if: ${{ env.MACOS_P12_BASE64 }} != null && env.UPLOAD_ARTIFACT == 'true'
+        if: env.MACOS_P12_BASE64 != null && env.UPLOAD_ARTIFACT == 'true'
         run: |
           # Patch create-dmg to give more attempts to unmount image
           CREATE_DMG="$(command -v create-dmg)"
