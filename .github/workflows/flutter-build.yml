@@ -646,7 +646,6 @@ jobs:
           echo "P12 Base64 is set: ${{ env.MACOS_P12_BASE64 == '' }}"
 
       - name: Import the codesign cert
-        #if: env.MACOS_P12_BASE64 != null
         if: ${{ env.MACOS_P12_BASE64 }} != null
         uses: apple-actions/import-codesign-certs@v1
         with:
@@ -655,14 +654,12 @@ jobs:
           keychain: rustdesk
 
       - name: Check sign and import sign key
-        #if: env.MACOS_P12_BASE64 != null
         if: ${{ env.MACOS_P12_BASE64 }} != null
         run: |
           security default-keychain -s rustdesk.keychain
           security find-identity -v
 
       - name: Import notarize key
-        #if: env.MACOS_P12_BASE64 != null
         if: ${{ env.MACOS_P12_BASE64 }} != null
         uses: timheuer/base64-to-file@v1.2
         with:
